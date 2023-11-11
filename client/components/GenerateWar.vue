@@ -109,7 +109,7 @@ export default {
 
                 // remove specific key from object
                 const warData = this.accomplishmentReports.map((item) =>{
-                    const {duration, ...restItem} = item;
+                    const {duration, totalDurationPerDay, ...restItem} = item;
                     return restItem;
                 })
                 
@@ -117,7 +117,7 @@ export default {
                     name: this.name,
                     position: this.position,
                     periodCovered: this.periodCovered,
-                    warData
+                    warData: this.accomplishmentReports
                 };
                 const res = (await axios.post('http://localhost:100/api/clockify/generate-war',payloadData)).data;
                 var a = document.createElement("a");

@@ -22,17 +22,15 @@ export default class Clockify {
                 startDate = moment(currentDate).startOf('isoWeek').isoWeekday(1); 
                 endDate = moment(currentDate).endOf('isoWeek').isoWeekday(7);            
             }
-            console.log('Start of the week (Monday):', startDate.format('L'));
-            console.log('End of the week (Sunday):', endDate.format('L'));
+
             
             let currentDay = null;
             
             for (const item of data) {
                 const entryDate = moment(item.timeInterval.start);
-            
                 // Check if the entry's date is within the specified range
                 if (entryDate.isBetween(startDate, endDate, undefined, '[]')) {
-                    const formattedDuration = Mixins.readDuration(item.timeInterval.duration);
+                    const formattedDuration = Mixins.readDuration(item.timeInterval.duration);  
             
                     const entry = {
                         date: Mixins.dateFormat(item.timeInterval.start),
@@ -41,17 +39,21 @@ export default class Clockify {
                         endTime: Mixins.timeFormat(item.timeInterval.end),
                         formattedDuration: formattedDuration,
                         duration: Mixins.timeToSeconds(formattedDuration),
+                        status: 'entry'
                     };
                     // console.log('\x1b[31m errrorr', moment(entry.date));
-                    console.log('currentDay :>> ', moment(currentDay).format('L'));
-                    if (!moment(item.timeInterval.start).isSame(currentDay, 'day')) {
+                    if (!moment(item.timeInterval.start).isSame(currentDay, 'day')) {   
                         if (currentDay !== null) {
-                        processedEntries.push({
-                            date: Mixins.dateFormat(currentDay),
-                            totalDurationPerDay: totalDurationPerDay,
-                            formattedTotalDurationPerDay: Mixins.secondsToHMS(totalDurationPerDay),
-                            formattedDuration: Mixins.secondsToHMS(totalDurationPerDay),
-                        });
+                            processedEntries.push({
+                                date: Mixins.dateFormat(currentDay),
+                                description: '',
+                                startTime: '',
+                                endTime: '',
+                                formattedDuration: Mixins.secondsToHMS(totalDurationPerDay),
+                                formattedTotalDurationPerDay: Mixins.secondsToHMS(totalDurationPerDay),
+                                totalDurationPerDay,
+                                status: 'day'
+                            });
                         }
                         currentDay = item.timeInterval.start;
                         totalDurationPerDay = 0;
@@ -59,16 +61,32 @@ export default class Clockify {
             
                     processedEntries.push(entry);
             
-                    totalDuration += entry.duration;
                     totalDurationPerDay += entry.duration;
+                    totalDuration += entry.duration;
                 }
             }
             
             processedEntries.push({
                 date: Mixins.dateFormat(currentDay),
-                totalDurationPerDay: totalDurationPerDay,
+                description: '',
+                startTime: '',
+                endTime: '',
+                formattedDuration: Mixins.secondsToHMS(totalDurationPerDay),
                 formattedTotalDurationPerDay: Mixins.secondsToHMS(totalDurationPerDay),
+                totalDurationPerDay: totalDurationPerDay,
+                status: 'day'
             });
+
+            const totalWeekDuration = processedEntries.reduce((acc, curr) => acc + (curr.totalDurationPerDay || 0), 0);
+            
+            processedEntries.push({
+                date: '',
+                description: '',
+                startTime: '',
+                endTime: 'Total:',
+                formattedTotalDurationPerDay: Mixins.secondsToHMS(totalWeekDuration),
+            })
+            
             
             accomplishmentReports = processedEntries;
             // console.log("accomplishmentReports :>> ", JSON.stringify(accomplishmentReports, null, 3));
