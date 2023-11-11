@@ -48,7 +48,7 @@ export default class Mixins {
     }
 
     static timeFormat(d) {
-        console.log('timeFormat :>> ', moment(d).format("LTS").padStart(11, "0"));
+        // console.log('timeFormat :>> ', moment(d).format("LTS").padStart(11, "0"));
         return moment(d).format("LTS").padStart(11, "0");
     }
 

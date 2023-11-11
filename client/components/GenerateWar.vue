@@ -10,9 +10,9 @@
                     </a-button>
                 </a-tooltip>
                 <a-tooltip placement="top"> 
-                    <template slot="title"><span>Generate Accomplishment Reports this week</span></template>
-                    <a-button type="primary" icon="download" :size="size" @click="generateExcel">
-                    Generate this week
+                    <template slot="title"><span>Download Weekly Accomplishment Reports</span></template>
+                    <a-button type="primary" icon="download" :size="size" @click="printWar">
+                    Download
                     </a-button>
                 </a-tooltip>
                 <!-- <a-tooltip placement="top">
@@ -40,6 +40,9 @@ export default {
     data() { 
         return { 
             xlsxData:  {},
+            name: 'John Angelo B. Silvestre',
+            position: 'Software Engineer',
+            periodCovered: 'January 1, 2020 - January 31, 2020',
             accomplishmentReports: [],
             downloadLoading: false,
             columns: [{
@@ -93,19 +96,41 @@ export default {
             try{ 
                 // console.log('Base URL:', this.$axios.defaults.baseURL);
                 const res = (await axios.get('http://localhost:100/api/clockify/time-entries')).data;
-                console.log("loadCurrentWeekReports data: ",res)
+                console.log("loadCurrentWeekReports data: ",res.data)
+                this.accomplishmentReports = res.data;
+                
+                // console.log("loadCurrentWeekReports: ", JSON.stringify(res))
+            } catch(error) { 
+                console.log("Error :>>" , error)
+            }
+        },
+        async printWar()  { 
+            try {
+
+                // remove specific key from object
+                const warData = this.accomplishmentReports.map((item) =>{
+                    const {duration, ...restItem} = item;
+                    return restItem;
+                })
+                
+                const payloadData = {
+                    name: this.name,
+                    position: this.position,
+                    periodCovered: this.periodCovered,
+                    warData
+                };
+                const res = (await axios.post('http://localhost:100/api/clockify/generate-war',payloadData)).data;
                 var a = document.createElement("a");
-                console.log("res.war a:", res.war)
-                if (res.war) {
-                    console.log("res.war: ", res.war)
-                    a.href = "data:image/png;base64," + res.war;
+                console.log("res.war a:", res.data)
+                if (res.data) {
+                    console.log("res.war: ", res.data)
+                    a.href = "data:image/png;base64," + res.data;
                     // let current = this.$moment(new Date()).format("MM-DD-YYYY")
                     a.download = `sample-weekly-report.xlsx`;
                     a.click();
                 }
-                // console.log("loadCurrentWeekReports: ", JSON.stringify(res))
-            } catch(error) { 
-                console.log("Error :>>" , error)
+            } catch (error) {
+                
             }
         }
     }

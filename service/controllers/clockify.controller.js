@@ -21,34 +21,34 @@ export default class ClockifyController {
             // console.log('response :>> ', response);
             const result = await Clockify.getWeeklyReport(response);
             console.log('result :>> ', result);
-            // let report = await XLSPrinter.printMultipleSheet("/dynamic-class-record.xlsx", data);
-            const excelData = {
-                name: "John Angelo B. Silvestre",
-                position: "Instructor",
-                periodCovered: "July 20, 2020 - July 24, 2020",
-                war: [
-                    {
-                        date: "08:00:00 AM",
-                        startTime: "08:00:00 AM",
-                        endTime: "09:23:04 AM",
-                        formattedDuration: "01:23:04",
-                        duration: 4984
-                    },
-                    {
-                        date: "09:23:00 AM",
-                        startTime: "09:23:00 AM",
-                        endTime: "11:09:00 AM",
-                        formattedDuration: "01:46:00",
-                        duration: 6360
-                    },
-                ]
-            }
-            const generateWar = await XLSPrinter.print("/war-template.xlsx", excelData)
+            
             // console.log('generateWar :>> ', generateWar);
-            res.status(200).json({status: "success", data: result, war: generateWar});
+            res.status(200).json({status: "success", data: result});
         } catch(e){
             // console.log('error :>> ', e);
             res.status(500).json({status: "error", message: e.message});
         }
     };
+
+    async generateWar(req, res) {
+        try{
+            const reqData = req.body;
+            // console.log('req data :>> ', reqData);
+
+            const reportItems = []
+            reqData?.warData?.map((item) => reportItems.push({"columns": Object.values(item)}))
+            const excelData = {
+                name: "John Angelo B. Silvestre",
+                position: "Instructor",
+                periodCovered: "July 20, 2020 - July 24, 2020",
+                war: reportItems
+            }
+            console.log('excelData :>> ', excelData);
+            const warResult = await XLSPrinter.print("/war-template.xlsx", excelData)
+            res.status(200).json({status: "success", data: warResult});
+        } catch(e){
+            // console.log('error :>> ', e);
+            res.status(500).json({status: "error", message: e.message});
+        }
+    }
 }

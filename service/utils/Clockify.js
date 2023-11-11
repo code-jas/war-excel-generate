@@ -12,7 +12,7 @@ export default class Clockify {
             
             const currentDate = moment();
             let startDate, endDate;
-            console.log('currentDate :>> ', currentDate);
+            // console.log('currentDate :>> ', currentDate);
             
             // Check if start and end parameters are provided, otherwise use the current week
             if (start && end) {
@@ -35,15 +35,15 @@ export default class Clockify {
                     const formattedDuration = Mixins.readDuration(item.timeInterval.duration);
             
                     const entry = {
-                        date: Mixins.timeFormat(item.timeInterval.start),
-                        description: Mixins.description,
+                        date: Mixins.dateFormat(item.timeInterval.start),
+                        description: item.description,
                         startTime: Mixins.timeFormat(item.timeInterval.start),
                         endTime: Mixins.timeFormat(item.timeInterval.end),
                         formattedDuration: formattedDuration,
                         duration: Mixins.timeToSeconds(formattedDuration),
                     };
                     // console.log('\x1b[31m errrorr', moment(entry.date));
-                    console.log('currentDay :>> ', currentDay);
+                    console.log('currentDay :>> ', moment(currentDay).format('L'));
                     if (!moment(item.timeInterval.start).isSame(currentDay, 'day')) {
                         if (currentDay !== null) {
                         processedEntries.push({
