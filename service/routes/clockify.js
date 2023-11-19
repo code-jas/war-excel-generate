@@ -6,7 +6,7 @@ class ClockifyRouter {
         this.router = express.Router();
         this.clockifyController = new ClockifyController();
         
-        this.router.get("/time-entries", this.clockifyController.getTimeEntries);
+        this.router.post("/time-entries", this.clockifyController.getTimeEntries);
         this.router.post("/generate-war", this.clockifyController.generateWar);
     }
 
