@@ -59,8 +59,8 @@ export default class ClockifyController {
             );
             const excelData = {
                 name: "John Angelo B. Silvestre",
-                position: "Instructor",
-                periodCovered: "July 20, 2020 - July 24, 2020",
+                position: "Junior Developer",
+                periodCovered: "October 30, 2023 - November 05, 2023",
                 war: reportItems
             }
             console.log('excelData :>> ', JSON.stringify(excelData,null, 2));

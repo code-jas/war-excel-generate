@@ -22,6 +22,8 @@ export default class Clockify {
                 startDate = moment(currentDate).startOf('isoWeek').isoWeekday(1); 
                 endDate = moment(currentDate).endOf('isoWeek').isoWeekday(7);            
             }
+            console.log('startDate :>> ', startDate);
+            console.log('endDate :>> ', endDate);
 
             
             let currentDay = null;
