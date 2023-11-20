@@ -13,17 +13,19 @@ export default class ClockifyController {
     constructor() { 
 
     }
-
+    // Get time entries for the current week or a specified range  from your clockify account
     async getTimeEntries(req, res) {
         try{
+            const reqData = req.body;
+            console.log('reqData :>> ', reqData);
             let response = (await axios.get(`/workspaces/${workspaceId}/user/${userId}/time-entries`)).data;
             response = response.sort((a, b) => new Date(a.timeInterval.start) - new Date(b.timeInterval.start));
-            // console.log('response :>> ', response);
-            const result = await Clockify.getWeeklyReport(response, 'October 30, 2023','November 05, 2023');
-            // console.log('result :>> ', result);
             
-            // console.log('generateWar :>> ', generateWar);
-            res.status(200).json({status: "success", data: result});
+            const result = reqData.dateRange ? 
+            await Clockify.getWeeklyReport(response, reqData.dateRange[0], reqData.dateRange[1]) : 
+            await Clockify.getWeeklyReport(response); 
+            
+            res.status(200).json({status: "success", data: result}); //
         } catch(e){
             // console.log('error :>> ', e);
             res.status(500).json({status: "error", message: e.message});
