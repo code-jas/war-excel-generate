@@ -1,6 +1,7 @@
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
+  // target: 'server',
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -36,8 +37,13 @@ export default {
   buildModules: [
   ],
 
+  // //  To make it work for SSR, remember to set `ssr: true` and `target: 'server'`
+  
+  
+
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    'cookie-universal-nuxt',
   ],
   
   // Axios module configuration: https://go.nuxtjs.dev/config-axios 

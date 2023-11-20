@@ -1,80 +1,80 @@
 <template>
-<div>
-    <a-modal
-      title="Title"
-      :visible="visible"
-      :footer="null"
-      @cancel="handleCancel"
-    > 
-        <a-form-model layout="horizontal"  :model="requestForm" ref="form" :rules="rules">
-            <a-form-model-item  :v-model="requestForm.name" label="Name"  style="margin-bottom: 0;">
-                <a-input placeholder="Please input your name" prop="name" />
+    <div>
+    <a-form-model layout="horizontal"  :model="requestForm" ref="form" :rules="rules">
+        <a-modal
+        title="Title"
+        :visible="visible"
+        @cancel="handleCancel"
+        > 
+            <a-form-model-item  label="Name" prop="name" style="margin-bottom: 0;">
+                <a-input  v-model="requestForm.name" placeholder="Please input your name" />
             </a-form-model-item>
-            <a-form-model-item  :v-model="requestForm.position" label="Job Position"  style="margin-bottom: 0;">
-                <a-input placeholder="Please input your job position" prop="position"/>
+            <a-form-model-item   label="Job Position" prop="position" style="margin-bottom: 0;">
+                <a-input  v-model="requestForm.position" placeholder="Please input your job position" />
             </a-form-model-item>
-            <a-form-model-item  v-model="requestForm.apikey" label="Clockify API key"  style="margin-bottom: 0;">
-                <a-input placeholder="**************************" prop="apikey"/>
+            <a-form-model-item   label="Clockify API key" prop="apikey" style="margin-bottom: 0;">
+                <a-input v-model="requestForm.apikey" placeholder="**************************" />
             </a-form-model-item>
-            <a-form-model-item  v-model="requestForm.workspaceId" label="Clockify workspace id"  style="margin-bottom: 0;">
-                <a-input placeholder="**************************" prop="workspaceId"/>
+            <a-form-model-item   label="Clockify workspace id" prop="workspaceId" style="margin-bottom: 0;">
+                <a-input v-model="requestForm.workspaceId" placeholder="**************************" />
             </a-form-model-item>
-            <a-form-model-item  v-model="requestForm.userId" label="Clockify user id"  style="margin-bottom: 0;">
-                <a-input placeholder="**************************" prop="userId"/>
+            <a-form-model-item   label="Clockify user id" prop="userId" style="margin-bottom: 0;">
+                <a-input v-model="requestForm.userId" placeholder="**************************" />
             </a-form-model-item>
-            <a-form-model-item style="margin:12px 0 0 0 ;">
-                <a-row>
-                    <a-col align="center">
-                        <a-button type="primary"  @click="handleSubmit">Submit</a-button>
-                    </a-col>
-                </a-row>
-            </a-form-model-item>
-
-        </a-form-model>
-    </a-modal>
+          
+            <template  slot="footer">
+                <a-button key="back" @click="handleCancel">Cancel</a-button>
+                <a-button key="submit" type="primary" :loading="loading" @click="handleSubmit">Submit</a-button>
+            </template>
+        </a-modal>
+    </a-form-model>
 </div>
 </template>
 
 
 
 <script>
+
 export default { 
     props:['visible'],
     data() { 
         return {
             requestForm: {},
+            loading: false,
             rules: {
                 name: [{
                     required: true,
                     message: "Anong pangalan mo?",
-                    // trigger: "change",
+                    trigger: "change",
                 }],
                 position: [{
                     required: true,
                     message: "bakit wala kang position?",
-                    // trigger: "change",
+                    trigger: "change",
                 }],
                 apikey: [{
                     required: true,
                     message: "tingnan ang clockify account mo para sa API key",
-                    // trigger: "change",
+                    trigger: "change",
                 }],
                 workspaceId:[{
                     required: true,
                     message: "tingnan ang clockify account mo para sa workspace id",
-                    // trigger: "change",
+                    trigger: "change",
                 }],
                 userId: [{
                     required: true,
                     message: "tingnan ang clockify account mo para sa user id",
-                    // trigger: "change",
+                    trigger: "change",
                 }]
             }
         }
     },
     methods: {
         async handleSubmit() {
-            this.$refs.form.validate((valid) => {
+            console.log('this.$refs :>> ', this.$refs);
+            this.$refs.form.validate((valid,values) => {
+                console.log('valuess :>> ', values);
             if (valid) {
                 this.sendRequest()
                 // Your form submission logic goes here
@@ -85,8 +85,20 @@ export default {
             });
         },
         sendRequest(){ 
-            console.log("this.requestForm",this.requestForm)
-            this.$emit('close')
+            try {
+                console.log("this.requestForm",this.requestForm)
+                // // Remove form data in cookies before adding new one
+                // this.$cookies.remove('clockify-api')
+                // Save form data in cookies using cookie-universal-nuxt
+                this.$cookies.set('clockify-api', this.requestForm, {
+                    path: '/',
+                    // maxAge: 60 * 60 * 24 * 7
+                })  
+                this.$emit('close')
+                this.$emit('refresh')
+            } catch (error) {
+                console.log('error on saving in cookie :>> ', error);
+            }
         },
         handleCancel(e) {
             console.log('Clicked cancel button');

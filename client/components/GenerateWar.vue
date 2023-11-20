@@ -5,9 +5,12 @@
                 <a-range-picker @change="dateRangeOnChange" :size="size" style="width:400px;" />
             </a-col>
             <a-col :span="12" type="flex" justify="center" align="right">
-                <!-- <a-button type="primary" :size="size" @click="showModal = true">
-                    Input Details
+                <!-- <a-button type="primary" :size="size" @click="retrieveFormData">
+                    get key
                 </a-button> -->
+                <a-button type="primary" :size="size" @click="showModal = true">
+                    Input Details
+                </a-button>
                 <!-- <a-tooltip placement="top">
                     <template slot="title"><span>Generate Accomplishment Reports</span></template>
                     <a-button type="primary" icon="download" :size="size" @click="generateReports" style="margin-right: 5px;">
@@ -20,24 +23,24 @@
                     Download
                     </a-button>
                 </a-tooltip>
-                <!-- <a-tooltip placement="top">
-                    <template slot="title"><span>Generate Accomplishment Reports this week</span></template>
-                    <a-spin :spinning="downloadLoading">
-                    <a-button type="primary" icon="download" :size="size" @click="generateWar">
-                        Generate this week
-                    </a-button>
-                    </a-spin>
-                </a-tooltip> -->
+               
             </a-col>
+            
             <a-col :span="24" >
                 <a-spin tip="Loading..." class="center-loading" :spinning="tableLoading">
-                    <a-table :columns="columns" :data-source="accomplishmentReports" bordered size="small" :pagination="{ pageSize: 30 }"  :rowKey="(record,idx) => idx">
-                        <a slot="name" slot-scope="text">{{ text }}</a>
-                    </a-table>
+                    <div v-if="clockifyAcc">
+                        <a-table :columns="columns" :data-source="accomplishmentReports" bordered size="small" :pagination="{ pageSize: 30 }"  :rowKey="(record,idx) => idx">
+                            <a slot="name" slot-scope="text">{{ text }}</a>
+                        </a-table>
+                    </div>
+                    <div v-else class="center-loading">
+                        <h1>INPUT YOUR DETAILS HAHAHA</h1>
+                    </div>
                 </a-spin>
             </a-col>
+         
         </a-row>
-    <input-modal :visible="showModal" @close=" showModal = false" />
+    <input-modal :visible="showModal" @close=" showModal = false" @refresh="$fetch" />
     </div>
 </template> 
 
@@ -48,6 +51,7 @@ export default {
     data() { 
         return { 
             xlsxData:  {},
+            clockifyAcc:{},
             name: 'John Angelo B. Silvestre',
             position: 'Software Engineer',
             periodCovered: 'January 1, 2020 - January 31, 2020',
@@ -105,24 +109,26 @@ export default {
         }
     },
     fetch() { 
-        this.loadCurrentWeekReports()
+        try {
+            this.clockifyAcc = this.$cookies.get('clockify-api')
+            if(this.clockifyAcc) { 
+                this.loadCurrentWeekReports(this.clockifyAcc, this.dateCovered)
+            } else { 
+                this.showModal = true;
+            }
+        } catch (error) {
+            console.log('Fetch error :>> ', error);
+        }
+       
     },
     methods:  { 
-        async loadCurrentWeekReports(dateRange) { 
+        async loadCurrentWeekReports(userDetails, dateRange) { 
             try{ 
                 this.tableLoading = true;
                 // console.log('Base URL:', this.$axios.defaults.baseURL);
-                let payload = {
-                    userId: "5e1f1b9b7f8b9b0b7b3e3b3a",
-                    workspaceId: "5e1f1b9b7f8b9b0b7b3e3b39"
-                }
-                if(dateRange) { 
-                    payload = {
-                        ...payload,
-                        dateRange
-                    }
-                }
-            
+                let payload  = { ...userDetails}
+
+                if(dateRange) {  payload = { ...userDetails, dateRange } }
                 const res = (await axios.post(`http://localhost:100/api/clockify/time-entries`, payload)).data;
                 console.log("loadCurrentWeekReports data: ",res.data)
                 this.accomplishmentReports = res.data;
@@ -162,9 +168,20 @@ export default {
             } catch (error) {
                 
             }
+        }, 
+        retrieveFormData() {
+            try{
+                // Retrieve form data from cookies using cookie-universal-nuxt
+                const storedFormData = this.$cookies.get('clockify-api')
+                console.log('storedFormData :>> ', storedFormData);
+
+            } catch(error) {
+                console.log('retrieveFormdata error :>> ',error);
+            }
+           
         },
         dateRangeOnChange(value) { 
-            value ?  this.loadCurrentWeekReports(value) :  this.loadCurrentWeekReports()
+            value ?  this.loadCurrentWeekReports(this.clockifyAcc, value) :  this.loadCurrentWeekReports(this.clockifyAcc)
         },
     }
 }

@@ -16,13 +16,18 @@ export default class ClockifyController {
     // Get time entries for the current week or a specified range  from your clockify account
     async getTimeEntries(req, res) {
         try{
-            const reqData = req.body;
-            console.log('reqData :>> ', reqData);
-            let response = (await axios.get(`/workspaces/${workspaceId}/user/${userId}/time-entries`)).data;
+            const {apikey, workspaceId,userId, dateRange} = req.body;
+            console.log('apikey :>> ', apikey);
+            console.log('workspaceId :>> ', workspaceId);
+            // add header apikey
+            // axios.defaults.headers.common['x-api-key'] = apikey;
+            const headers = {'x-api-key': apikey};
+
+            let response = (await axios.get(`/workspaces/${workspaceId}/user/${userId}/time-entries`, {headers})).data;
             response = response.sort((a, b) => new Date(a.timeInterval.start) - new Date(b.timeInterval.start));
             
-            const result = reqData.dateRange ? 
-            await Clockify.getWeeklyReport(response, reqData.dateRange[0], reqData.dateRange[1]) : 
+            const result = dateRange ? 
+            await Clockify.getWeeklyReport(response, dateRange[0], dateRange[1]) : 
             await Clockify.getWeeklyReport(response); 
             
             res.status(200).json({status: "success", data: result}); //
