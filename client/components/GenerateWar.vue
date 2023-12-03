@@ -25,6 +25,12 @@
                 </a-tooltip>
                
             </a-col>
+            <a-col :span="10" v-if="clockifyAcc" >
+                <a-descriptions :column="1" title="User Details" size="small" bordered>
+                    <a-descriptions-item label="Name">{{ clockifyAcc.name }}</a-descriptions-item>
+                    <a-descriptions-item label="Position">{{ clockifyAcc.position }}</a-descriptions-item>
+                </a-descriptions>
+            </a-col>
             
             <a-col :span="24" >
                 <a-spin tip="Loading..." class="center-loading" :spinning="tableLoading">
@@ -52,9 +58,7 @@ export default {
         return { 
             xlsxData:  {},
             clockifyAcc:{},
-            name: 'John Angelo B. Silvestre',
-            position: 'Software Engineer',
-            periodCovered: 'January 1, 2020 - January 31, 2020',
+            periodCovered: [],
             dateCovered: [],
             accomplishmentReports: [],
             downloadLoading: false,
@@ -142,27 +146,25 @@ export default {
         },
         async printWar()  { 
             try {
-
-                // remove specific key from object
-                const warData = this.accomplishmentReports.map((item) =>{
-                    const {duration, totalDurationPerDay, ...restItem} = item;
-                    return restItem;
-                })
-                
+                if(this.periodCovered.length <= 0){
+                    console.log('NO DATE RANGE SELECTED!!!!!!!!!!') 
+                    return
+                }
+                const formattedPeriodCovered = `${this.$moment(this.periodCovered[0]).format('LL')} - ${this.$moment(this.periodCovered[1]).format('LL')}`;
                 const payloadData = {
-                    name: this.name,
-                    position: this.position,
-                    periodCovered: this.periodCovered,
+                    name: this.clockifyAcc.name,
+                    position: this.clockifyAcc.position,
+                    periodCovered: formattedPeriodCovered,
                     warData: this.accomplishmentReports
                 };
+
                 const res = (await axios.post('http://localhost:100/api/clockify/generate-war',payloadData)).data;
                 var a = document.createElement("a");
                 console.log("res.war a:", res.data)
                 if (res.data) {
                     console.log("res.war: ", res.data)
                     a.href = "data:image/png;base64," + res.data;
-                    // let current = this.$moment(new Date()).format("MM-DD-YYYY")
-                    a.download = `sample-weekly-report.xlsx`;
+                    a.download = `${this.clockifyAcc.name}-${formattedPeriodCovered}-weekly-achievement-report.xlsx`;
                     a.click();
                 }
             } catch (error) {
@@ -174,14 +176,19 @@ export default {
                 // Retrieve form data from cookies using cookie-universal-nuxt
                 const storedFormData = this.$cookies.get('clockify-api')
                 console.log('storedFormData :>> ', storedFormData);
-
             } catch(error) {
                 console.log('retrieveFormdata error :>> ',error);
             }
            
         },
         dateRangeOnChange(value) { 
-            value ?  this.loadCurrentWeekReports(this.clockifyAcc, value) :  this.loadCurrentWeekReports(this.clockifyAcc)
+            if(value) { 
+                this.loadCurrentWeekReports(this.clockifyAcc, value)
+                this.periodCovered = value
+            } else { 
+                this.loadCurrentWeekReports(this.clockifyAcc)
+                this.periodCovered = []
+            }
         },
     }
 }

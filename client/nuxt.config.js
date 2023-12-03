@@ -34,8 +34,7 @@ export default {
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: [
-  ],
+  buildModules: ["@nuxtjs/moment"],
 
   // //  To make it work for SSR, remember to set `ssr: true` and `target: 'server'`
   

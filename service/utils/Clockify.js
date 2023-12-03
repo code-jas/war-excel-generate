@@ -22,9 +22,10 @@ export default class Clockify {
                 startDate = moment(currentDate).startOf('isoWeek').isoWeekday(1); 
                 endDate = moment(currentDate).endOf('isoWeek').isoWeekday(7);            
             }
-            console.log('startDate :>> ', startDate);
-            console.log('endDate :>> ', endDate);
+            // console.log('startDate :>> ', startDate);
+            // console.log('endDate :>> ', endDate);
 
+            const emptyColumn = {date: '', description: '', startTime: '', endTime: '', formattedDuration: '',formattedTotalDurationPerDay:'',totalDurationPerDay: 0,status: 'empty'}
             
             let currentDay = null;
             
@@ -50,12 +51,12 @@ export default class Clockify {
                                 date: Mixins.dateFormat(currentDay),
                                 description: '',
                                 startTime: '',
-                                endTime: '',
+                                endTime: 'Total Duration: ',
                                 formattedDuration: Mixins.secondsToHMS(totalDurationPerDay),
                                 formattedTotalDurationPerDay: Mixins.secondsToHMS(totalDurationPerDay),
                                 totalDurationPerDay,
                                 status: 'day'
-                            });
+                            },emptyColumn);
                         }
                         currentDay = item.timeInterval.start;
                         totalDurationPerDay = 0;
@@ -72,12 +73,12 @@ export default class Clockify {
                 date: Mixins.dateFormat(currentDay),
                 description: '',
                 startTime: '',
-                endTime: '',
+                endTime: 'Total Duration: ',
                 formattedDuration: Mixins.secondsToHMS(totalDurationPerDay),
                 formattedTotalDurationPerDay: Mixins.secondsToHMS(totalDurationPerDay),
                 totalDurationPerDay: totalDurationPerDay,
                 status: 'day'
-            });
+            },emptyColumn);
 
             const totalWeekDuration = processedEntries.reduce((acc, curr) => acc + (curr.totalDurationPerDay || 0), 0);
             
@@ -85,7 +86,7 @@ export default class Clockify {
                 date: '',
                 description: '',
                 startTime: '',
-                endTime: 'Total:',
+                endTime: 'Week Total Duration:',
                 formattedTotalDurationPerDay: Mixins.secondsToHMS(totalWeekDuration),
             })
             

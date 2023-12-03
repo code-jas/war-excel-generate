@@ -7,6 +7,7 @@ class ClockifyRouter {
         this.clockifyController = new ClockifyController();
         
         this.router.post("/time-entries", this.clockifyController.getTimeEntries);
+        // this.router.post("/time-entries2", this.clockifyController.getTimeEntries2);
         this.router.post("/generate-war", this.clockifyController.generateWar);
     }
 
